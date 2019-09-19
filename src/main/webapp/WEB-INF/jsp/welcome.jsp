@@ -5,7 +5,7 @@
 
 <petclinic:layout pageName="home">
     <h2><fmt:message key="welcome"/></h2>    
-    <h2>Welcome To DAC DEVOPS TEAM presentation</h2>    
+    <h2>Welcome To DAC DEVOPS TEAM PRESENTATION OF 2019</h2>    
     <div class="row">
         <div class="col-md-12">
             <spring:url value="/resources/images/pets.png" htmlEscape="true" var="petsImage"/>
