@@ -5,7 +5,7 @@
 
 <petclinic:layout pageName="home">
     <h2><fmt:message key="welcome"/></h2>    
-    <h2>Welcome To DAC DEVOPS TEAM - new build 78</h2>    
+    <h2>Welcome To DAC DEVOPS TEAM - sourcetree check </h2>    
     <div class="row">
         <div class="col-md-12">
             <spring:url value="/resources/images/pets.png" htmlEscape="true" var="petsImage"/>
