@@ -2,7 +2,7 @@ node
 {
      stage('GitSCM')
     {
-        git url: 'https://github.com/DevOps0110/petclinic.git'
+        git url: 'https://github.com/Poojkulk/petclinic.git'
     }
     
      stage('Initialize')
@@ -19,65 +19,50 @@ node
 		def mvnHome = tool 'mvn'
 	//	sh "${mvnHome}/bin/mvn -B verify"
     }
-    
-     stage('Build Stage')
+   
+    stage('Build Stage')
     {
-		//def mvnHome = tool 'mvn'
-		//sh "${mvnHome}/bin/mvn -B verify"
-    }
+		def mvnHome = tool 'mvn'
+		sh "${mvnHome}/bin/mvn -B verify"
+    } 
+    
+  	stage('Sonar Analysis') 
+  	{
+  		withSonarQubeEnv('sonar') 
+ 		{
+ 		    def mvn = tool 'mvn'
+  			sh 'mvn clean package sonar:sonar'
+  			sh 'sleep 10'
+ 		} // SonarQube taskId is automatically attached to the pipeline context 
+ 	}
 	
+      stage("Quality Gate")
+      {
+          timeout(time: 1, unit: 'HOURS') 
+          { // Just in case something goes wrong, pipeline will be killed after a timeout
+          def qg = waitForQualityGate() // Reuse taskId previously collected by withSonarQubeEnv
+          if (qg.status != 'OK') 
+          {
+              error "Pipeline aborted due to quality gate failure: ${qg.status}"
+          }
+          }
+     } 
+
 	stage('Publish to Nexus')
     {
-       // sh 'mvn deploy:deploy-file -DgroupId=com.cicd -DartifactId=petclinic -Dversion=${BUILD_NUMBER} -DgeneratePom=true -Dpackaging=war -DrepositoryId=nexus-snapshots -Durl=http://10.0.2.18:8081/nexus/content/repositories/petclinic/  -Dfile=/root/.jenkins/workspace/Petclinic/target/petclinic.war'
+      nexusArtifactUploader artifacts: [[artifactId: 'petclinic', classifier: '', file:'/var/lib/jenkins/workspace/petclinic/target/petclinic.war', type: 'war']], credentialsId: '6a7ec07e-b4b2-43cd-b0f5-85f69b10ce8e', groupId: 'cicd', nexusUrl:'52.13.66.31:8081/nexus/content/repositories/petclinic', nexusVersion: 'nexus2', protocol: 'http', repository: 'petclinic', version: '${BUILD_NUMBER}'
+    // sh 'mvn deploy:deploy-file -DcredentialsId=6a7ec07e-b4b2-43cd-b0f5-85f69b10ce8e -DgroupId=com.cicd -DartifactId=petclinic -Dversion=${BUILD_NUMBER} -DgeneratePom=true -Dpackaging=war -DrepositoryId=nexus-snapshots -Durl=http://52.13.66.31:8081/nexus  -Dfile=/var/lib/jenkins/workspace/petclinic/target/petclinic.war'
     }
     
-      stage("Deploy to Rundeck")
-	{
-	   step([$class: "RundeckNotifier", 
-            includeRundeckLogs: true, 
-	    jobId: "38f04e85-9da9-49ab-a17a-3a5792cdd666",
-            rundeckInstance: "Rundeck", 
-            shouldFailTheBuild: true, 
-            shouldWaitForRundeckJob: true, 
-            tailLog: true]) 
-
-	}
-	
-	stage('Selenium Testing')
-    {
-        git url: 'https://github.com/DevOps0110/petclinic.git'
-        sh "cd /root/.jenkins/workspace/Petclinic/TestCases"
-        wrap([$class: 'Xvfb', displayNameOffset: 0, installationName: 'Xvfb', screen: '1600x1200x32']) 
-        {
-            sh "sudo bash"
-            sh "mvn test"
-        }
-        
+    stage('Deploy to Tomcat')	
+    {	
+	    deploy adapters: [tomcat8(credentialsId: '2ea36ad7-d5eb-4a03-912b-3429165f59a5', path: '', url: 'http://54.218.115.187:8082/')], contextPath: 'petclinic', war: '**/*.war'	
     }
-    
-    
-    stage('Performance testing')
-    {
-        sh "sudo bash"
-		sh "rm -rf /root/.jenkins/workspace/Petclinic/Petclinic.jmx"
-		sh "rm -rf /root/.jenkins/workspace/Petclinic/Petclinic.jtl"
-		sh "rm -rf /root/.jenkins/workspace/Petclinic/Petclinic.xml"
-		sh "wget https://labassets.s3-us-west-2.amazonaws.com/AZURE/ARMTemplate/Petclinic.jmx"
-		sh "sudo /home/ec2-user/jMeter/apache-jmeter-5.1.1/bin/jmeter.sh -Jjmeter.save.saveservice.output_format=xml -n -t /root/.jenkins/workspace/Petclinic/Petclinic.jmx -l Petclinic.jtl"
-        
-    }
-	
-    stage('Security Testing using ZAP')
-    {
-        sh "cd /var/lib/docker"
-	sh "rm -rf elb-petclinic-dns*"
-	sh "wget  https://labassets.s3-us-west-2.amazonaws.com/Dependencies/Rundeck/PetclinicUrl.txt"
-        sh "sudo docker run -t owasp/zap2docker-weekly zap-baseline.py -t \$(head -n 1 PetclinicUrl.txt) || true"
-        
-    }  
     stage('Send logs to ES')
     {
         logstashSend failBuild: true, maxLines: -1
         sh 'sleep 1'
     }
 }
+
+
