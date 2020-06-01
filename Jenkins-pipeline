@@ -26,7 +26,7 @@ node
 		sh "${mvnHome}/bin/mvn -B verify"
     } 
     
-  	stage('Sonar Analysis') 
+<--  	stage('Sonar Analysis') 
   	{
   		withSonarQubeEnv('sonar') 
  		{
@@ -47,6 +47,7 @@ node
           }
           }
      } 
+     -->
 
 	stage('Publish to Nexus')
     {
