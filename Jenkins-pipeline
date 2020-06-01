@@ -9,8 +9,8 @@ node
     {
     
 		jdk = tool name: 'java'
-		env.JAVA_HOME = "${java}"
-		echo "jdk installation path is: ${java}"
+		env.JAVA_HOME = "${jdk}"
+		echo "jdk installation path is: ${jdk}"
 		// next 2 are equivalents
 		sh "${jdk}/bin/java -version"
 		// note that simple quote strings are not evaluated by Groovy
