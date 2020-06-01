@@ -1,0 +1,83 @@
+node
+{
+     stage('GitSCM')
+    {
+        git url: 'https://github.com/DevOps0110/petclinic.git'
+    }
+    
+     stage('Initialize')
+    {
+    
+		jdk = tool name: 'java'
+		env.JAVA_HOME = "${java}"
+		echo "jdk installation path is: ${java}"
+		// next 2 are equivalents
+		sh "${jdk}/bin/java -version"
+		// note that simple quote strings are not evaluated by Groovy
+		// substitution is done by shell script using environment
+		sh '$JAVA_HOME/bin/java -version'
+		def mvnHome = tool 'mvn'
+	//	sh "${mvnHome}/bin/mvn -B verify"
+    }
+    
+     stage('Build Stage')
+    {
+		//def mvnHome = tool 'mvn'
+		//sh "${mvnHome}/bin/mvn -B verify"
+    }
+	
+	stage('Publish to Nexus')
+    {
+       // sh 'mvn deploy:deploy-file -DgroupId=com.cicd -DartifactId=petclinic -Dversion=${BUILD_NUMBER} -DgeneratePom=true -Dpackaging=war -DrepositoryId=nexus-snapshots -Durl=http://10.0.2.18:8081/nexus/content/repositories/petclinic/  -Dfile=/root/.jenkins/workspace/Petclinic/target/petclinic.war'
+    }
+    
+      stage("Deploy to Rundeck")
+	{
+	   step([$class: "RundeckNotifier", 
+            includeRundeckLogs: true, 
+	    jobId: "38f04e85-9da9-49ab-a17a-3a5792cdd666",
+            rundeckInstance: "Rundeck", 
+            shouldFailTheBuild: true, 
+            shouldWaitForRundeckJob: true, 
+            tailLog: true]) 
+
+	}
+	
+	stage('Selenium Testing')
+    {
+        git url: 'https://github.com/DevOps0110/petclinic.git'
+        sh "cd /root/.jenkins/workspace/Petclinic/TestCases"
+        wrap([$class: 'Xvfb', displayNameOffset: 0, installationName: 'Xvfb', screen: '1600x1200x32']) 
+        {
+            sh "sudo bash"
+            sh "mvn test"
+        }
+        
+    }
+    
+    
+    stage('Performance testing')
+    {
+        sh "sudo bash"
+		sh "rm -rf /root/.jenkins/workspace/Petclinic/Petclinic.jmx"
+		sh "rm -rf /root/.jenkins/workspace/Petclinic/Petclinic.jtl"
+		sh "rm -rf /root/.jenkins/workspace/Petclinic/Petclinic.xml"
+		sh "wget https://labassets.s3-us-west-2.amazonaws.com/AZURE/ARMTemplate/Petclinic.jmx"
+		sh "sudo /home/ec2-user/jMeter/apache-jmeter-5.1.1/bin/jmeter.sh -Jjmeter.save.saveservice.output_format=xml -n -t /root/.jenkins/workspace/Petclinic/Petclinic.jmx -l Petclinic.jtl"
+        
+    }
+	
+    stage('Security Testing using ZAP')
+    {
+        sh "cd /var/lib/docker"
+	sh "rm -rf elb-petclinic-dns*"
+	sh "wget  https://labassets.s3-us-west-2.amazonaws.com/Dependencies/Rundeck/PetclinicUrl.txt"
+        sh "sudo docker run -t owasp/zap2docker-weekly zap-baseline.py -t \$(head -n 1 PetclinicUrl.txt) || true"
+        
+    }  
+    stage('Send logs to ES')
+    {
+        logstashSend failBuild: true, maxLines: -1
+        sh 'sleep 1'
+    }
+}
