@@ -38,11 +38,11 @@ node
     {	
 	    deploy adapters: [tomcat8(credentialsId: '2ea36ad7-d5eb-4a03-912b-3429165f59a5', path: '', url: 'http://54.218.115.187:8082/')], contextPath: 'petclinic', war: '**/*.war'	
     }
-    stage('Send logs to ES')
-    {
-        logstashSend failBuild: true, maxLines: -1
-        sh 'sleep 1'
-    }
+   // stage('Send logs to ES')
+   // {
+    //    logstashSend failBuild: true, maxLines: -1
+      //  sh 'sleep 1'
+    //}
 }
 
 
