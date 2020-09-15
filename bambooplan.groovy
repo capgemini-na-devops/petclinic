@@ -2,11 +2,7 @@ project(key: 'MYP1', name: 'Petclinic_Project_Demos8') {
     plan(key: 'PETS1', name: 'Petclinic_Plans8') {
         description ''
         enabled true
-            
-              scm{
-                linkedRepository("Petclinic")
-                 }
-		
+          
 		triggers {
 		remote() {
         description 'my remote trigger'
