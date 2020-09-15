@@ -61,10 +61,7 @@ project(key: 'MYP1', name: 'Petclinic_Project_Demos8') {
 						description 'checkout repo'
 						forceCleanBuild true
                        		
-      scm{
-        linkedRepository("Petclinic")
-      }				
-						}
+      					}
                     custom(pluginKey: 'com.atlassian.bamboo.plugins.vcs:task.vcs.checkout') {
                         description 'github'
                         enabled true
