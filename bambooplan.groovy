@@ -38,10 +38,7 @@ project(key: 'MYP1', name: 'Petclinic_Project_Demos8') {
         email: 'pooja-k.kulkarni@capgemini.com'
         }
     }
-              scm{
-                linkedRepository("Petclinic")
-                 }
-      
+              
          stage(name: 'Development Stage') {
             description ''
             manual false
