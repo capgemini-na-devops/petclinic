@@ -2,6 +2,10 @@ project(key: 'MYP1', name: 'Petclinic_Project_Demos8') {
     plan(key: 'PETS1', name: 'Petclinic_Plans8') {
         description ''
         enabled true
+            
+              scm{
+                linkedRepository("Petclinic")
+                 }
 		
 		triggers {
 		remote() {
@@ -38,6 +42,9 @@ project(key: 'MYP1', name: 'Petclinic_Project_Demos8') {
         email: 'pooja-k.kulkarni@capgemini.com'
         }
     }
+              scm{
+                linkedRepository("Petclinic")
+                 }
       
          stage(name: 'Development Stage') {
             description ''
