@@ -2,7 +2,7 @@ project(key: 'MYP1', name: 'Petclinic_Project_Demos8') {
     plan(key: 'PETS1', name: 'Petclinic_Plans8') {
         description ''
         enabled true
-          
+		
 		triggers {
 		remote() {
         description 'my remote trigger'
@@ -38,7 +38,7 @@ project(key: 'MYP1', name: 'Petclinic_Project_Demos8') {
         email: 'pooja-k.kulkarni@capgemini.com'
         }
     }
-              
+      
          stage(name: 'Development Stage') {
             description ''
             manual false
@@ -57,10 +57,11 @@ project(key: 'MYP1', name: 'Petclinic_Project_Demos8') {
 				     checkout() {
 						description 'checkout repo'
 						forceCleanBuild true
-                                  
-                                                 }                                        
                        		
-      					
+      scm{
+        linkedRepository("Petclinic")
+      }				
+						}
                     custom(pluginKey: 'com.atlassian.bamboo.plugins.vcs:task.vcs.checkout') {
                         description 'github'
                         enabled true
@@ -70,8 +71,6 @@ project(key: 'MYP1', name: 'Petclinic_Project_Demos8') {
                              'selectedRepository_0': 'defaultRepository',
                              'checkoutDir_0': '',
                         )
-                              
-                          }
                     } 
                     
                     custom(pluginKey: 'com.atlassian.bamboo.plugins.maven:task.builder.mvn3') {
@@ -223,6 +222,8 @@ project(key: 'MYP1', name: 'Petclinic_Project_Demos8') {
                         )
                     } 
                 }
-            }    
+            } 
+            
         } 
+    }
 }
