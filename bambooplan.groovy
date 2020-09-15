@@ -1,5 +1,5 @@
-project(key: 'MYP1', name: 'Petclinic_Project_Demos8') {
-    plan(key: 'PETS1', name: 'Petclinic_Plans8') {
+project(key: 'MYP1', name: 'Petclinic_Project_Demos0') {
+    plan(key: 'PETS1', name: 'Petclinic_Plans0') {
         description ''
         enabled true
 		
@@ -49,7 +49,7 @@ project(key: 'MYP1', name: 'Petclinic_Project_Demos8') {
         }
 		}
         
-            job(key: 'JOB1', name: 'Petclinic_Tomcat_Dev') {
+            job(key: 'JOB1', name: 'Petclinic_Tomcat_Dev0') {
                 description ''
                 enabled true
             
