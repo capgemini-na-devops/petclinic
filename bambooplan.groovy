@@ -71,6 +71,9 @@ project(key: 'MYP1', name: 'Petclinic_Project_Demos8') {
                              'selectedRepository_0': 'defaultRepository',
                              'checkoutDir_0': '',
                         )
+                              scm{
+                            linkedRepository("Petclinic")
+                          }
                     } 
                     
                     custom(pluginKey: 'com.atlassian.bamboo.plugins.maven:task.builder.mvn3') {
