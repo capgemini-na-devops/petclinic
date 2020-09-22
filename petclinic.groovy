@@ -1,5 +1,5 @@
-project(key: 'MYP1', name: 'Petclinic_Project_Demos0') {
-    plan(key: 'PETS1', name: 'Petclinic_Plans0') {
+project(key: 'MYP32', name: 'DSLProject_Petclinic') {
+    plan(key: 'PETS32', name: 'DSLPlans_Petclinic') {
         description ''
         enabled true
 		
@@ -17,39 +17,21 @@ project(key: 'MYP1', name: 'Petclinic_Project_Demos0') {
             cronExpression '* * * ? * *'
         }
     }
-    }
-		notifications {
-        email(event: NotificationEvent.FIRST_FAILED_JOB_FOR_PLAN) {
-        email: 'pooja-k.kulkarni@capgemini.com'
-        }
-		email(event: NotificationEvent.ALL_JOBS_COMPLETED) {
-        email: 'pooja-k.kulkarni@capgemini.com'
-        }
-		email(event: NotificationEvent.ALL_BUILDS_COMPLETED) {
-        email: 'pooja-k.kulkarni@capgemini.com'
-        }
-		email(event: NotificationEvent.FAILED_JOBS_AND_FIRST_SUCCESSFUL) {
-        email: 'pooja-k.kulkarni@capgemini.com'
-        }
-		email(event: NotificationEvent.ALL_JOBS_COMPLETED) {
-        email: 'pooja-k.kulkarni@capgemini.com'
-        }
-		email(event: NotificationEvent.JOB_ERROR) {
-        email: 'pooja-k.kulkarni@capgemini.com'
-        }
-    }
-      
-         stage(name: 'Development Stage') {
+    }      
+         stage(name: 'Development') {
             description ''
             manual false
 			
 			branches {
-	  branch(name: 'development') {
-            vcsBranchName 'development/Petclinic'
+	 branch(name: 'development') {
+          vcsBranchName 'development/Petclinic'
         }
-		}
+	 branch(name: 'master') {
+          vcsBranchName 'master/Petclinic'
+        }
+	}
         
-            job(key: 'JOB1', name: 'Petclinic_Tomcat_Dev0') {
+            job(key: 'JOB1', name: 'Petclinic_Job') {
                 description ''
                 enabled true
             
@@ -68,8 +50,19 @@ project(key: 'MYP1', name: 'Petclinic_Project_Demos0') {
                         isFinal false
                         configure(
                              'cleanCheckout': '',
-                             'selectedRepository_0': 'defaultRepository',
+                             'selectedRepository_0': '589986',
                              'checkoutDir_0': '',
+                        )
+                    }
+					custom(pluginKey: 'com.atlassian.bamboo.plugins.bamboo-artifact-downloader-plugin:artifactdownloadertask') {
+                        description ''
+                        enabled false
+                        isFinal false
+                        configure(
+                             'sourcePlanKey': 'MYP32-PETS32',
+                             'localPath_1': '',
+                             'artifactName_1': 'PetClinic',
+							 'url':'https://github.com/capgemini-na-devops/petclinic.git'
                         )
                     } 
                     
@@ -84,7 +77,7 @@ project(key: 'MYP1', name: 'Petclinic_Project_Demos0') {
                              'environmentVariables': '',
                              'testResultsDirectory': '**/target/surefire-reports/*.xml',
                              'buildJdk': 'JDK 1.8',
-                             'label': 'Maven3_Home',
+                             'label': 'maven1',
                              'testChecked': '',
                              'workingSubDirectory': '',
                              'useMavenReturnCode': 'false',
@@ -116,7 +109,7 @@ project(key: 'MYP1', name: 'Petclinic_Project_Demos0') {
                              'failBuildForSonarErrors': '',
                              'sonarProjectVersion': '',
                              'sonarBranch': '',
-                             'executable': 'Maven3_Home',
+                             'executable': 'Maven1',
                              'illegalBranchCharsReplacement': '_',
                              'failBuildForTaskErrors': 'true',
                              'incrementalModeNotPossible': 'incrementalModeRunFullAnalysis',
@@ -135,7 +128,7 @@ project(key: 'MYP1', name: 'Petclinic_Project_Demos0') {
                     } 
                     custom(pluginKey: 'com.atlassian.bamboo.plugins.scripttask:task.builder.script') {
                         description 'nexus'
-                        enabled true
+                        enabled false
                         isFinal false
                         configure(
                              'argument': '',
@@ -151,17 +144,17 @@ project(key: 'MYP1', name: 'Petclinic_Project_Demos0') {
                     } 
                     custom(pluginKey: 'com.atlassian.bamboo.plugins.tomcat.bamboo-tomcat-plugin:deployAppTask') {
                         description ''
-                        enabled false
+                        enabled true
                         isFinal false
                         configure(
                              'appVersion': '',
-                             'tomcatUrl': 'http://54.202.213.82:8090/manager',
+                             'tomcatUrl': 'http://18.237.88.206:9000/manager',
                              'warFilePath': '/target/petclinic.war',
                              'tomcatUsername': 'admin',
                              'deploymentTag': '',
-                             'encTomcatPassword': '6SSTqKJm4iU=',
+                             'encTomcatPassword': 'yd/bAsOfEO4uVZLjHOc3rA==',
                              'appContext': '/mypet',
-                             'tomcat6': '',
+                             'tomcat7': '',
                         )
                     } 
                 }
@@ -176,18 +169,28 @@ project(key: 'MYP1', name: 'Petclinic_Project_Demos0') {
             } 
 
         } 
-
-        deploymentProject(name: 'Deployment1 for Petclinic_Project_Demo') {
+		
+		        deploymentProject(name: 'Deployment for DSLProject_Petclinic') {
             description ''
-            
+           
             environment(name: 'Development') {
                 description ''
 				triggers {
-				afterSuccessfulBuildPlan() {
-				customPlanBranchName 'development'
-				}
-				}
+			afterSuccessfulStage() {
+            planStageToTriggerThisDeployment 'Development'
+            customPlanBranchName 'master'
+			//MainPlanBranchName 'master'
+        }
+    }
                 tasks { 
+                  
+                  custom(pluginKey: 'com.atlassian.bamboo.plugins.bamboo-artifact-downloader-plugin:cleanWorkingDirectoryTask') {
+                        description ''
+                        enabled true
+                        isFinal false
+                        configure(
+                        )
+                    } 
                     custom(pluginKey: 'com.atlassian.bamboo.plugins.bamboo-artifact-downloader-plugin:cleanWorkingDirectoryTask') {
                         description ''
                         enabled true
@@ -195,35 +198,37 @@ project(key: 'MYP1', name: 'Petclinic_Project_Demos0') {
                         configure(
                         )
                     } 
-                    custom(pluginKey: 'com.atlassian.bamboo.plugins.bamboo-artifact-downloader-plugin:artifactdownloadertask') {
-                        description 'Download release contents'
+          custom(pluginKey: 'com.atlassian.bamboo.plugins.bamboo-artifact-downloader-plugin:artifactdownloadertask') {
+                        description ''
                         enabled true
                         isFinal false
                         configure(
-                             'sourcePlanKey': 'MYP-PETS',
+                             'sourcePlanKey': 'MYP11-PETS11',
                              'artifactName_0': 'PetClinic',
-                             'artifactId_0': '4358152',
+                             //'artifactId_0': '1114146',
                              'localPath_0': '',
                         )
                     } 
+                  
                     custom(pluginKey: 'com.atlassian.bamboo.plugins.tomcat.bamboo-tomcat-plugin:deployAppTask') {
                         description ''
                         enabled true
                         isFinal false
                         configure(
                              'appVersion': '',
-                             'tomcatUrl': 'http://54.202.213.82:8090/manager',
-                             'warFilePath': 'petclinic.war',
+                             'tomcatUrl': 'http://18.237.88.206:9000/manager',
+                             'warFilePath': '/petclinic.war',
                              'tomcatUsername': 'admin',
                              'deploymentTag': '',
-                             'encTomcatPassword': '6SSTqKJm4iU=',
+                             'encTomcatPassword': 'yd/bAsOfEO4uVZLjHOc3rA==',
                              'appContext': '/mypet',
-                             'tomcat6': '',
+                             'tomcat7': '',
                         )
-                    } 
-                }
-            } 
+                    }
+                } 
             
-        } 
-    }
+            }					
+        
+        }
+	}
 }
