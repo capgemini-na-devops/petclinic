@@ -11,7 +11,7 @@
             <spring:url value="/resources/images/pets.png" htmlEscape="true" var="petsImage"/>
             <img class="img-responsive" src="${petsImage}"/>
         </div>
-        <h2>We strive to provide the best veterinary medicine coupled with the most compassionate, collaborative care in the Region - Welcome Everyone</h2>
+        <h2>We strive to provide the best veterinary medicine coupled with the most compassionate, collaborative care in the Region - Welcome Everyone!!!</h2>
     </div>
     <br/><br/><br/><br/><br/>
    
